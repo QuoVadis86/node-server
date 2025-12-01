@@ -25,6 +25,16 @@ const apps = {
         name: '元宝',
         description: '腾讯元宝平台验证码'
     },
+    'meeting': {
+        appid: '2001340261',
+        name: '会议',
+        description: '腾讯会议平台验证码'
+    },
+    'doc': {
+        appid: '2053989439',
+        name: '文档',
+        description: '腾讯文档平台验证码'
+    },
     // 'tencent': {
     //     appid: '2048700062',
     //     name: '腾讯验证码',
