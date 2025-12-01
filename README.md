@@ -12,7 +12,7 @@
 
 ## 当前支持平台
 
-- 腾讯验证码 (TCaptcha) - Ticket参数生成
+- 腾讯混元AI (Hunyuan AI) - Ticket参数生成
 
 ## 技术架构
 
@@ -34,12 +34,14 @@
 ### 目录结构
 ```
 .
-├── core/              核心功能模块
-│   └── tencent/      腾讯平台相关核心功能
-├── service/           业务逻辑层
-├── middleware/        中间件
-├── main.js           应用入口文件
-└── README.md         说明文档
+├── core/                 核心功能模块
+│   └── tencent/          腾讯平台相关核心功能
+│       ├── tencent_config.js  腾讯平台配置信息
+│       └── ticket_generator.js 腾讯Ticket生成器
+├── service/              业务逻辑层
+├── middleware/           中间件
+├── main.js              应用入口文件
+└── README.md            说明文档
 ```
 
 ## 快速开始
@@ -62,14 +64,23 @@ node main.js
 
 ### 使用接口
 ```bash
-# 获取腾讯验证码Ticket
-curl http://localhost:5001/ticket
+# 获取腾讯混元AI验证码Ticket (POST请求)
+curl -X POST http://localhost:5001/ticket \
+  -H "Content-Type: application/json" \
+  -d '{"app": "hunyuan"}'
 ```
 
 ## API 接口文档
 
-### GET /ticket
-获取腾讯验证码的Ticket参数
+### POST /ticket
+获取指定平台的验证码Ticket参数
+
+**请求参数:**
+```json
+{
+  "app": "hunyuan"  // 平台标识，目前支持 hunyuan/tencent
+}
+```
 
 **响应示例:**
 ```json
@@ -77,9 +88,23 @@ curl http://localhost:5001/ticket
   "ret": 0,
   "ticket": "t03X55ZctDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "randstr": "@HWiA0kXXX",
+  "platform": "hunyuan",
   "timestamp": "2023-01-01T00:00:00.000Z"
 }
 ```
+
+## 平台配置
+
+目前支持的腾讯平台配置保存在 `core/tencent/tencent_config.js` 中：
+
+```javascript
+const platformAppIds = {
+    'hunyuan': '2048700062',   // 腾讯混元AI平台
+    'tencent': '2048700062'    // 腾讯验证码平台
+};
+```
+
+如需添加新平台，只需在该配置文件中添加相应的平台标识和appid即可。
 
 ## 错误处理
 
@@ -93,8 +118,9 @@ curl http://localhost:5001/ticket
 
 1. 在 `core/` 目录下创建对应平台的目录
 2. 实现参数生成功能
-3. 在 `service/` 目录下创建对应的业务逻辑
-4. 在 `main.js` 中注册新的路由
+3. 添加平台配置文件
+4. 在 `service/` 目录下创建对应的业务逻辑（如需要）
+5. 在 `main.js` 中注册新的路由（如需要）
 
 ## 注意事项
 

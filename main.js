@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleTicketRequest } from './service/ticket_service.js';
+import { handleTicketRequest } from './service/tencent/ticket_service.js';
 import { handleGeneralError, handleNotFoundError } from './middleware/error_handler.js';
 import { setupAppMiddlewares } from './middleware/app_middlewares.js';
 
@@ -10,8 +10,8 @@ const PORT = 5001;
 // 设置应用级中间件
 setupAppMiddlewares(app);
 
-// Ticket生成接口
-app.get('/ticket', handleTicketRequest);
+// Ticket生成接口 - POST请求
+app.post('/tencent/ticket', handleTicketRequest);
 
 // 添加错误处理中间件
 app.use((err, req, res, next) => {
@@ -32,7 +32,7 @@ const server = app.listen(PORT, '0.0.0.0', (err) => {
     
     console.log(`腾讯验证码Ticket生成服务已启动`);
     console.log(`访问地址: http://localhost:${PORT}`);
-    console.log(`获取ticket接口: http://localhost:${PORT}/ticket`);
+    console.log(`获取ticket接口: http://localhost:${PORT}/ticket (POST方法)`);
 });
 
 // 优雅关闭

@@ -1,9 +1,49 @@
 import { launch } from 'puppeteer';
 
 /**
- * 生成腾讯验证码ticket的函数
- * @param {string} appid - 腾讯验证码的appid
- * @returns {Promise<Object>} 包含ticket和randstr的对象
+ * 验证码验证结果对象
+ * @typedef {Object} CaptchaResult
+ * @property {number} ret - 验证码返回码 (0表示成功)
+ * @property {string} ticket - 验证票据，用于后端验证
+ * @property {string} randstr - 随机字符串，用于后端验证
+ * @property {string} [errMessage] - 错误信息（如果存在）
+ * @property {string} [level] - 安全等级
+ */
+
+/**
+ * 浏览器实例配置选项
+ * @typedef {Object} BrowserLaunchOptions
+ * @property {boolean} headless - 是否以无头模式运行
+ * @property {string[]} args - 启动参数数组
+ * @property {boolean} [ignoreHTTPSErrors] - 是否忽略HTTPS错误
+ * @property {Object} [defaultViewport] - 默认视口设置
+ */
+
+/**
+ * 页面等待选项
+ * @typedef {Object} PageWaitOptions
+ * @property {string|string[]} waitUntil - 等待指定的页面生命周期事件
+ */
+
+/**
+ * 生成腾讯云验证码ticket的函数
+ * 使用Puppeteer在无头浏览器环境中加载腾讯验证码组件
+ * 支持通过postMessage机制获取验证结果
+ * 
+ * @param {string} [appid="2048700062"] - 腾讯云验证码应用的appid
+ * @returns {Promise<CaptchaResult>} 返回包含ticket、randstr及其他验证信息的Promise对象
+ * @throws {Error} 当验证码验证超时或发生错误时抛出异常
+ * 
+ * @example
+ * generateTicket("2048700062").then(result => {
+ *   console.log('Ticket:', result.ticket);
+ *   console.log('Randstr:', result.randstr);
+ * }).catch(error => {
+ *   console.error('验证失败:', error);
+ * });
+ * 
+ * @since 1.0.0
+ * @version 1.0.0
  */
 async function generateTicket(appid = "2048700062") {
     console.log('正在启动浏览器...');
