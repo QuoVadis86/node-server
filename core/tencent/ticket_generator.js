@@ -50,8 +50,17 @@ async function generateTicket(appid = "2048700062") {
     
     // 启动浏览器
     const browser = await launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        headless: false,
+        ignoreHTTPSErrors: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-blink-features=AutomationControlled',
+            '--disable-extensions',
+            '--no-first-run',
+            '--disable-dev-shm-usage',
+            '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+        ]
     });
     
     const page = await browser.newPage();
