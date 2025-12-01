@@ -1,18 +1,14 @@
-import express, { json, urlencoded } from 'express';
-import cors from 'cors';
+import express from 'express';
 import { handleTicketRequest } from './service/ticket_service.js';
-import { handleGeneralError, handleNotFoundError } from './service/error_handler.js';
+import { handleGeneralError, handleNotFoundError } from './middleware/error_handler.js';
+import { setupAppMiddlewares } from './middleware/app_middlewares.js';
 
 // 创建Express应用
 const app = express();
 const PORT = 5001;
 
-// 添加CORS中间件，允许所有来源
-app.use(cors());
-
-// 添加其他中间件
-app.use(json());
-app.use(urlencoded({ extended: true }));
+// 设置应用级中间件
+setupAppMiddlewares(app);
 
 // Ticket生成接口
 app.get('/ticket', handleTicketRequest);
