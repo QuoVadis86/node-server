@@ -2,6 +2,7 @@ import express from 'express';
 import { handleTicketRequest } from './service/tencent/ticket_service.js';
 import { handleGeneralError, handleNotFoundError } from './middleware/error_handler.js';
 import { setupAppMiddlewares } from './middleware/app_middlewares.js';
+import { closeAllBrowsers } from './core/browser_pool.js';
 
 // 创建Express应用
 const app = express();
@@ -36,22 +37,28 @@ const server = app.listen(PORT, '0.0.0.0', (err) => {
 });
 
 // 优雅关闭
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
     console.log('\n正在关闭服务器...');
-    server.close(() => {
+    server.close(async () => {
         console.log('服务器已关闭');
+        // 关闭所有浏览器实例
+        await closeAllBrowsers();
         process.exit(0);
     });
 });
 
 // 处理未捕获的异常
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', async (err) => {
     console.error('未捕获的异常:', err);
+    // 关闭所有浏览器实例
+    await closeAllBrowsers();
     process.exit(1);
 });
 
 // 处理未处理的Promise拒绝
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', async (reason, promise) => {
     console.error('未处理的Promise拒绝:', reason);
+    // 关闭所有浏览器实例
+    await closeAllBrowsers();
     process.exit(1);
 });

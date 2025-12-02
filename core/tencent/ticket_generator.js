@@ -1,4 +1,4 @@
-import { launch } from 'puppeteer';
+import { getPage, closePage } from '../browser_pool.js';
 
 /**
  * 验证码验证结果对象
@@ -46,24 +46,10 @@ import { launch } from 'puppeteer';
  * @version 1.0.0
  */
 async function generateTicket(appid = "2048700062") {
-    console.log('正在启动浏览器...');
+    console.log('正在获取浏览器页面...');
     
-    // 启动浏览器
-    const browser = await launch({
-        headless: false,
-        ignoreHTTPSErrors: true,
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-blink-features=AutomationControlled',
-            '--disable-extensions',
-            '--no-first-run',
-            '--disable-dev-shm-usage',
-            '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
-        ]
-    });
-    
-    const page = await browser.newPage();
+    // 获取页面
+    const page = await getPage('tencent');
     
     // 设置页面内容
     const htmlContent = `
@@ -142,9 +128,9 @@ async function generateTicket(appid = "2048700062") {
     // 创建Promise并返回结果
     return new Promise((resolve, reject) => {
         // 设置超时
-        const timeout = setTimeout(() => {
+        const timeout = setTimeout(async () => {
+            await closePage(page, 'tencent');
             reject(new Error('验证码验证超时'));
-            browser.close();
         }, 120000); // 2分钟超时
         
         // 监听来自页面的消息
@@ -188,7 +174,7 @@ async function generateTicket(appid = "2048700062") {
                 if (result) {
                     clearInterval(checkResult);
                     clearTimeout(timeout);
-                    await browser.close();
+                    await closePage(page, 'tencent');
                     console.log('成功获取验证码结果');
                     resolve(result);
                 }
