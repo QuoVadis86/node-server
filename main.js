@@ -2,7 +2,7 @@ import express from 'express';
 import { handleTicketRequest } from './service/tencent/ticket_service.js';
 import { handleGeneralError, handleNotFoundError } from './middleware/error_handler.js';
 import { setupAppMiddlewares } from './middleware/app_middlewares.js';
-import { closeAllBrowsers } from './core/browser_pool.js';
+import { closeAllBrowsers } from './core/utils/browser_pool.js';
 
 // 创建Express应用
 const app = express();

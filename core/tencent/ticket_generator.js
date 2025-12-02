@@ -1,4 +1,4 @@
-import { getPage, closePage } from '../browser_pool.js';
+import { getPage, closePage } from '../utils/browser_pool.js';
 
 /**
  * 验证码验证结果对象
@@ -10,26 +10,9 @@ import { getPage, closePage } from '../browser_pool.js';
  * @property {string} [level] - 安全等级
  */
 
-/**
- * 浏览器实例配置选项
- * @typedef {Object} BrowserLaunchOptions
- * @property {boolean} headless - 是否以无头模式运行
- * @property {string[]} args - 启动参数数组
- * @property {boolean} [ignoreHTTPSErrors] - 是否忽略HTTPS错误
- * @property {Object} [defaultViewport] - 默认视口设置
- */
 
 /**
- * 页面等待选项
- * @typedef {Object} PageWaitOptions
- * @property {string|string[]} waitUntil - 等待指定的页面生命周期事件
- */
-
-/**
- * 生成腾讯云验证码ticket的函数
- * 使用Puppeteer在无头浏览器环境中加载腾讯验证码组件
- * 支持通过postMessage机制获取验证结果
- * 
+ * 获取腾讯云验证码的票据和随机字
  * @param {string} [appid="2048700062"] - 腾讯云验证码应用的appid
  * @returns {Promise<CaptchaResult>} 返回包含ticket、randstr及其他验证信息的Promise对象
  * @throws {Error} 当验证码验证超时或发生错误时抛出异常
@@ -47,10 +30,10 @@ import { getPage, closePage } from '../browser_pool.js';
  */
 async function generateTicket(appid = "2048700062") {
     console.log('正在获取浏览器页面...');
-    
+
     // 获取页面
     const page = await getPage('tencent');
-    
+
     // 设置页面内容
     const htmlContent = `
     <!DOCTYPE html>
@@ -119,12 +102,12 @@ async function generateTicket(appid = "2048700062") {
     </body>
     </html>
     `;
-    
+
     // 导航到自定义页面
     await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
-    
+
     console.log('页面已加载，请完成验证码验证...');
-    
+     // TODO:实现自动处理验证码
     // 创建Promise并返回结果
     return new Promise((resolve, reject) => {
         // 设置超时
@@ -132,20 +115,20 @@ async function generateTicket(appid = "2048700062") {
             await closePage(page, 'tencent');
             reject(new Error('验证码验证超时'));
         }, 120000); // 2分钟超时
-        
+
         // 监听来自页面的消息
         page.on('console', msg => console.log('页面控制台:', msg.text()));
-        
+
         // 监听来自iframe的消息
         page.on('response', response => {
             console.log('页面响应:', response.url());
         });
-        
+
         // 监听页面消息
         page.on('message', message => {
             console.log('收到页面消息:', message);
         });
-        
+
         // 监听来自页面的postMessage
         page.on('request', request => {
             // 检查是否是验证码相关请求
@@ -153,24 +136,24 @@ async function generateTicket(appid = "2048700062") {
                 console.log('验证码相关请求:', request.url());
             }
         });
-        
+
         // 监听来自页面的消息
         page.evaluate(() => {
-            window.addEventListener('message', function(event) {
+            window.addEventListener('message', function (event) {
                 if (event.data && event.data.type === 'TICKET_RESULT') {
                     // 将结果发送到Node环境
                     window.ticketResult = event.data.data;
                 }
             });
         });
-        
+
         // 定期检查结果
         const checkResult = setInterval(async () => {
             try {
                 const result = await page.evaluate(() => {
                     return window.ticketResult || null;
                 });
-                
+
                 if (result) {
                     clearInterval(checkResult);
                     clearTimeout(timeout);

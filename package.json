@@ -1,8 +1,9 @@
 {
   "dependencies": {
-    "express": "^5.1.0",
     "cors": "^2.8.5",
+    "express": "^5.1.0",
     "fs": "^0.0.1-security",
-    "puppeteer": "^24.31.0"
+    "puppeteer": "^24.31.0",
+    "resemblejs": "^5.0.0"
   }
 }
